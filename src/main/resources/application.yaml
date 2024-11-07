@@ -1,0 +1,35 @@
+micronaut:
+  application:
+    name: task-service
+  openapi:
+    enabled: true
+    endpoints:
+      swagger: /swagger
+    path: swagger.yml
+#  router:
+#    static-resources:
+#      swagger:
+#        paths: classpath:swagger
+#        mapping: /swagger/**
+swagger:
+  ui:
+    enabled: true
+
+datasources:
+  default:
+    url: jdbc:postgresql://localhost:5432/postgres
+    driverClassName: org.postgresql.Driver
+    username: fred
+    password: eric5432
+    dialect: POSTGRES
+    maximum-pool-size: 10
+    minimum-idle: 4
+
+flyway:
+  datasources:
+    default:
+      enabled: true
+      locations: classpath:db/migration
+      baseline-on-migrate: true
+      baseline-version: 0
+      fail-on-missing-locations: true

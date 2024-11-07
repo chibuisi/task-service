@@ -1,0 +1,129 @@
+plugins {
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("io.micronaut.application") version "4.4.2"
+    id("io.micronaut.aot") version "4.4.2"
+}
+
+version = "0.1"
+group = "com.chibuisi"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    annotationProcessor("io.micronaut:micronaut-http-validation")
+    annotationProcessor("io.micronaut.serde:micronaut-serde-processor")
+    annotationProcessor("org.projectlombok:lombok")
+    annotationProcessor("io.micronaut:micronaut-inject")
+    annotationProcessor "io.micronaut.openapi:micronaut-openapi"
+
+    //Injecting an EntityManager
+    //annotationProcessor "jakarta.persistence:jakarta.persistence-api:2.2"
+
+    compileOnly("io.micronaut:micronaut-http-client")
+    //Injecting an EntityManager
+    compileOnly "jakarta.persistence:jakarta.persistence-api:2.2"
+
+    //Configuring JDBC
+    runtimeOnly("io.micronaut.sql:micronaut-jdbc-hikari")
+    runtimeOnly("ch.qos.logback:logback-classic")
+    //PostgreSQL dependency
+    runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("org.yaml:snakeyaml")
+    runtimeOnly("org.flywaydb:flyway-database-postgresql")
+
+    //Configuring JPA
+    implementation("io.micronaut.data:micronaut-data-jdbc")
+    implementation("io.micronaut.serde:micronaut-serde-jackson")
+    implementation("org.projectlombok:lombok")
+    implementation("io.micronaut:micronaut-inject")
+    implementation ("io.micronaut:micronaut-http-server-netty")
+    implementation ("io.swagger.core.v3:swagger-annotations")
+    implementation("io.micronaut.flyway:micronaut-flyway:")
+    implementation("io.micronaut.validation:micronaut-validation")
+
+    testAnnotationProcessor("org.projectlombok:lombok")
+
+    //annotationProcessor("io.micronaut:micronaut-inject-java")
+
+    testImplementation("io.micronaut:micronaut-http-client")
+    testImplementation("org.projectlombok:lombok")
+    //junit
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
+    testImplementation("io.micronaut.test:micronaut-test-junit5")
+    //mockito
+    testImplementation("org.mockito:mockito-core")
+    testImplementation("org.mockito:mockito-junit-jupiter")
+    //wiremock
+    //integrationTestImplementation("org.wiremock:wiremock-standalone")
+    //performanceTestImplementation("org.mockito:mockito-junit-jupiter")
+
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+}
+
+
+application {
+    mainClass = "com.chibuisi.Application"
+}
+java {
+    sourceCompatibility = JavaVersion.toVersion("21")
+    targetCompatibility = JavaVersion.toVersion("21")
+}
+
+graalvmNative.toolchainDetection = false
+
+micronaut {
+    runtime("netty")
+    testRuntime("junit5")
+    processing {
+        incremental(true)
+        annotations("com.chibuisi.*")
+    }
+    aot {
+        // Please review carefully the optimizations enabled below
+        // Check https://micronaut-projects.github.io/micronaut-aot/latest/guide/ for more details
+        optimizeServiceLoading = false
+        convertYamlToJava = false
+        precomputeOperations = true
+        cacheEnvironment = true
+        optimizeClassLoading = true
+        deduceEnvironment = true
+        optimizeNetty = true
+        replaceLogbackXml = true
+    }
+}
+
+tasks.named("dockerfileNative") {
+    jdkVersion = "21"
+}
+
+sourceSets {
+    performanceTest {
+        java {
+            srcDir 'src/performanceTest/java'
+        }
+        resources {
+            srcDir 'src/performanceTest/resources'
+        }
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+    integrationTest {
+        java {
+            srcDir 'src/integrationTest/java'
+        }
+        resources {
+            srcDir 'src/integrationTest/resources'
+        }
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+
+//configurations {
+//    performanceTestImplementation.extendsFrom testImplementation
+//    integrationTestImplementation.extendsFrom testImplementation
+//}
+
+

@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+  postgres15:
+    image: postgres:15.0-bullseye
+    environment:
+      POSTGRES_USER: fred
+      POSTGRES_PASSWORD: eric5432
+      POSTGRES_DB: task-service-db
+    volumes:
+      - ./data:/var/lib/postgresql/data_postgres
+    ports:
+      - "5432:5432"
