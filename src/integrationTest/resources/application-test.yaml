@@ -1,0 +1,9 @@
+micronaut:
+  application:
+    name: task-service
+  environments:
+    - test
+
+datasources:
+  default:
+    dialect: POSTGRES

@@ -17,7 +17,7 @@ swagger:
 
 datasources:
   default:
-    url: jdbc:postgresql://localhost:5432/postgres
+    url: jdbc:postgresql://localhost:15432/postgres
     driverClassName: org.postgresql.Driver
     username: fred
     password: eric5432

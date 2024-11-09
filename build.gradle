@@ -11,19 +11,26 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    performanceTestImplementation.extendsFrom testImplementation
+    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
 dependencies {
     annotationProcessor("io.micronaut:micronaut-http-validation")
     annotationProcessor("io.micronaut.serde:micronaut-serde-processor")
     annotationProcessor("org.projectlombok:lombok")
     annotationProcessor("io.micronaut:micronaut-inject")
     annotationProcessor "io.micronaut.openapi:micronaut-openapi"
+    //]]annotationProcessor("io.micronaut:micronaut-inject-java")
 
     //Injecting an EntityManager
     //annotationProcessor "jakarta.persistence:jakarta.persistence-api:2.2"
 
-    compileOnly("io.micronaut:micronaut-http-client")
     //Injecting an EntityManager
     compileOnly "jakarta.persistence:jakarta.persistence-api:2.2"
+    compileOnly("io.micronaut:micronaut-http-client")
 
     //Configuring JDBC
     runtimeOnly("io.micronaut.sql:micronaut-jdbc-hikari")
@@ -44,8 +51,7 @@ dependencies {
     implementation("io.micronaut.validation:micronaut-validation")
 
     testAnnotationProcessor("org.projectlombok:lombok")
-
-    //annotationProcessor("io.micronaut:micronaut-inject-java")
+    testAnnotationProcessor("io.micronaut:micronaut-inject-java")
 
     testImplementation("io.micronaut:micronaut-http-client")
     testImplementation("org.projectlombok:lombok")
@@ -56,8 +62,15 @@ dependencies {
     testImplementation("org.mockito:mockito-core")
     testImplementation("org.mockito:mockito-junit-jupiter")
     //wiremock
+    //integrationTestImplementation project("main")
     //integrationTestImplementation("org.wiremock:wiremock-standalone")
     //performanceTestImplementation("org.mockito:mockito-junit-jupiter")
+    //testcontainers
+    //testImplementation("org.postgresql:postgresql")
+    testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.testcontainers:testcontainers")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine")
 
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
@@ -79,6 +92,7 @@ micronaut {
     processing {
         incremental(true)
         annotations("com.chibuisi.*")
+        group = "com.chibuisi.*"
     }
     aot {
         // Please review carefully the optimizations enabled below
@@ -109,21 +123,36 @@ sourceSets {
         compileClasspath += sourceSets.main.output
         runtimeClasspath += sourceSets.main.output
     }
-    integrationTest {
-        java {
-            srcDir 'src/integrationTest/java'
-        }
-        resources {
-            srcDir 'src/integrationTest/resources'
-        }
-        compileClasspath += sourceSets.main.output
-        runtimeClasspath += sourceSets.main.output
-    }
+//    integrationTest {
+//        java {
+//            srcDir 'src/integrationTest/java'
+//        }
+//        resources {
+//            srcDir 'src/integrationTest/resources'
+//        }
+//        compileClasspath += sourceSets.main.output
+//        compileClasspath += sourceSets.integrationTest.output
+//        runtimeClasspath += sourceSets.main.output
+//        runtimeClasspath += sourceSets.integrationTest.output
+//    }
 }
 
-//configurations {
-//    performanceTestImplementation.extendsFrom testImplementation
-//    integrationTestImplementation.extendsFrom testImplementation
-//}
+testing {
+    suites {
+        integrationTest(JvmTestSuite) {
+            dependencies {
+                implementation project()
+            }
+            configurations {
+                integrationTestCompileClasspath.extendsFrom testCompileClassPath
+                integrationTestRuntimeClasspath.extendsFrom testRuntimeClasspath
+                integrationTestImplementation.extendsFrom testImplementation
+                integrationTestRuntime.extendsFrom testRuntime
+                integrationTestAnnotationProcessor.extendsFrom testAnnotationProcessor
+            }
+        }
+    }
+}
+check.dependsOn { testing.suites.integrationTest }
 
 
