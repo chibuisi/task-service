@@ -5,10 +5,7 @@ import com.chibuisi.api.transformer.TaskTransformer;
 import com.chibuisi.domain.service.TaskService;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
-import io.micronaut.http.annotation.Body;
-import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.Post;
-import io.micronaut.http.annotation.Produces;
+import io.micronaut.http.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -49,6 +46,32 @@ public class TaskController {
     public HttpResponse<TaskDto> saveTask(@Body @Valid TaskDto taskDto) {
         return HttpResponse.created(
                 taskTransformer.fromTask(taskService.saveTask(taskTransformer.fromDto(taskDto))));
+    }
+
+    @Get("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(
+            summary = "Retrieves a task",
+            description = "Retrieves a task with the provided id",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Task retrieved successfully",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskDto.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Invalid request"
+                    )
+            }
+    )
+    public HttpResponse<TaskDto> getTask(@PathVariable Long id) {
+        TaskDto result = taskTransformer.fromTask(taskService.getTask(id));
+        if(result == null) {
+            return HttpResponse.notFound();
+        }
+
+        return HttpResponse.ok(result);
     }
 
 }

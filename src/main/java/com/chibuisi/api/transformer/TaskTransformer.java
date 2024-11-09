@@ -19,6 +19,9 @@ public class TaskTransformer {
     }
 
     public TaskDto fromTask(Task task) {
+        if(task == null) {
+            return null;
+        }
         return TaskDto.builder()
                 .id(task.getId())
                 .title(task.getTitle())
