@@ -40,4 +40,35 @@ public class TaskControllerIntegrationTest extends ApiTestSupport  {
         assertEquals("Integration Test Task", response.body().getTitle());
         log.info("Passed create task integration test");
     }
+    @Test
+    void testGetTask() {
+        log.info("Running get task integration test");
+        // Arrange
+        TaskDto taskDto = TaskDto.builder()
+                .title("Integration Test Task")
+                .description("This task is created in an integration test")
+                .status(TaskStatus.PENDING)
+                .createdTime(Instant.now())
+                .updatedTime(Instant.now())
+                .build();
+
+        HttpRequest<TaskDto> request = HttpRequest.POST("/task", taskDto);
+
+        // Act
+        HttpResponse<TaskDto> response = client.toBlocking().exchange(request, Argument.of(TaskDto.class));
+
+        // Assert
+        assertEquals(201, response.getStatus().getCode());
+        assertNotNull(response.body());
+        assertNotNull(response.body().getId());
+        assertEquals("Integration Test Task", response.body().getTitle());
+
+        HttpRequest<TaskDto> getRequest = HttpRequest.GET(String.format("task/%d", 1L));
+
+        HttpResponse<TaskDto> getResponse = client.toBlocking().exchange(getRequest, Argument.of(TaskDto.class));
+        assertEquals(200, getResponse.getStatus().getCode());
+        assertNotNull(response.body());
+        assertEquals(response.body().getId(), 1L);
+        log.info("Passed get task integration test");
+    }
 }

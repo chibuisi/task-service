@@ -6,6 +6,7 @@ import com.chibuisi.domain.model.Task;
 import com.chibuisi.domain.model.TaskStatus;
 import com.chibuisi.domain.service.TaskService;
 import io.micronaut.http.HttpResponse;
+import io.micronaut.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -15,8 +16,9 @@ import org.mockito.MockitoAnnotations;
 import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class TaskControllerTest {
 
@@ -68,5 +70,57 @@ class TaskControllerTest {
         // Assert
         assertEquals(201, response.getStatus().getCode());
         assertEquals(taskDto, response.body());
+    }
+
+    @Test
+    void getTask_WhenTaskExists_ReturnsOkWithTaskDto() {
+        // Arrange
+        Instant createdTime = Instant.parse("2024-11-06T23:22:30.913109Z");
+        Instant updatedTime = Instant.parse("2024-11-06T23:22:36.176713Z");
+        Long taskId = 1L;
+        TaskDto taskDto = TaskDto.builder()
+                .title("Sample Task")
+                .description("Sample Description")
+                .status(TaskStatus.PENDING)
+                .createdTime(createdTime)
+                .updatedTime(updatedTime)
+                .build();
+
+        Task task = Task.builder()
+                .id(1L)
+                .title("Sample Task")
+                .description("Sample Description")
+                .status(TaskStatus.PENDING)
+                .createdTime(createdTime)
+                .updatedTime(updatedTime)
+                .build();
+
+        when(taskService.getTask(taskId)).thenReturn(task);
+        when(taskTransformer.fromTask(task)).thenReturn(taskDto);
+
+        // Act
+        HttpResponse<TaskDto> response = taskController.getTask(taskId);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatus());
+        assertEquals(taskDto, response.body());
+        verify(taskService, times(1)).getTask(taskId);
+        verify(taskTransformer, times(1)).fromTask(task);
+    }
+
+    @Test
+    void getTask_WhenTaskDoesNotExist_ReturnsNotFound() {
+        // Arrange
+        Long taskId = 1L;
+
+        when(taskService.getTask(taskId)).thenReturn(null);
+
+        // Act
+        HttpResponse<TaskDto> response = taskController.getTask(taskId);
+
+        // Assert
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
+        assertNull(response.body());
+        verify(taskService, times(1)).getTask(taskId);
     }
 }
