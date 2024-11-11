@@ -1,5 +1,7 @@
 package com.chibuisi.infrastructure.service;
 
+import com.chibuisi.api.exception.InvalidTaskException;
+import com.chibuisi.api.exception.TaskNotFoundException;
 import com.chibuisi.domain.model.Task;
 import com.chibuisi.domain.model.TaskStatus;
 import com.chibuisi.domain.transformer.TaskTransformer;
@@ -14,8 +16,7 @@ import org.mockito.MockitoAnnotations;
 import java.time.Instant;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class TaskEntityServiceTest {
@@ -88,6 +89,87 @@ class TaskEntityServiceTest {
         assertEquals(task, result);
         verify(taskRepository, times(1)).findById(taskId);
         verify(taskTransformer, times(1)).fromTaskEntity(taskEntity);
+    }
+
+    @Test
+    void getTask_ShouldThrowTaskNotFoundException_WhenTaskNotFound() {
+        // Arrange
+        Long taskId = 20L;
+        when(taskRepository.findById(taskId)).thenReturn(Optional.empty());
+
+        assertThrows(TaskNotFoundException.class, () -> taskEntityService.getTask(taskId));
+
+        verify(taskRepository, times(1)).findById(taskId);
+        verifyNoInteractions(taskTransformer);
+    }
+
+    @Test
+    void updateTask_ShouldThrowInvalidTaskException_WhenTaskIsNull() {
+        // Arrange
+        Long taskId = 1L;
+
+        // Act & Assert
+        Exception exception = assertThrows(InvalidTaskException.class, () -> taskEntityService.updateTask(null, taskId));
+        assertEquals("Task cannot be null", exception.getMessage());
+
+        verifyNoInteractions(taskRepository, taskTransformer);
+    }
+
+    @Test
+    void updateTask_ShouldThrowInvalidTaskException_WhenIdIsNull() {
+        // Arrange
+        Task task = Task.builder().build();
+
+        // Act & Assert
+        Exception exception = assertThrows(InvalidTaskException.class, () -> taskEntityService.updateTask(task, null));
+        assertEquals("ID cannot be null", exception.getMessage());
+
+        verifyNoInteractions(taskRepository, taskTransformer);
+    }
+
+    @Test
+    void updateTask_ShouldThrowTaskNotFoundException_WhenTaskDoesNotExist() {
+        // Arrange
+        Long taskId = 1L;
+        Task task = Task.builder().build();
+
+        when(taskRepository.findById(taskId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(TaskNotFoundException.class, () -> taskEntityService.updateTask(task, taskId));
+
+        verify(taskRepository, times(1)).findById(taskId);
+        verifyNoInteractions(taskTransformer);
+    }
+
+    @Test
+    void updateTask_ShouldUpdateTaskSuccessfully_WhenTaskAndIdAreValid() {
+        // Arrange
+        Long taskId = 1L;
+        Task task = Task.builder()
+                .title("Sample Task")
+                .description("Sample Description")
+                .createdTime(Instant.parse("2024-11-06T23:22:30.913109Z"))
+                .status(TaskStatus.PENDING)
+                .build();
+        TaskEntity existingTaskEntity = new TaskEntity();
+        TaskEntity updatedTaskEntity = new TaskEntity();
+        TaskEntity savedTaskEntity = new TaskEntity();
+
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTaskEntity));
+        when(taskTransformer.updateTaskEntityFromTask(existingTaskEntity, task)).thenReturn(updatedTaskEntity);
+        when(taskRepository.update(updatedTaskEntity)).thenReturn(savedTaskEntity);
+        when(taskTransformer.fromTaskEntity(savedTaskEntity)).thenReturn(task);
+
+        // Act
+        Task result = taskEntityService.updateTask(task, taskId);
+
+        // Assert
+        assertEquals(task, result);
+        verify(taskRepository, times(1)).findById(taskId);
+        verify(taskTransformer, times(1)).updateTaskEntityFromTask(existingTaskEntity, task);
+        verify(taskRepository, times(1)).update(updatedTaskEntity);
+        verify(taskTransformer, times(1)).fromTaskEntity(savedTaskEntity);
     }
 }
 
