@@ -1,6 +1,7 @@
 package com.chibuisi.api.transformer;
 
 import com.chibuisi.api.model.TaskDto;
+import com.chibuisi.api.model.UpdateTaskDto;
 import com.chibuisi.domain.model.Task;
 import jakarta.inject.Singleton;
 
@@ -29,6 +30,14 @@ public class TaskTransformer {
                 .createdTime(task.getCreatedTime())
                 .updatedTime(task.getUpdatedTime())
                 .status(task.getStatus())
+                .build();
+    }
+
+    public Task fromUpdateTaskDto(UpdateTaskDto updateTaskDto) {
+        return Task.builder()
+                .title(updateTaskDto.getTitle())
+                .description(updateTaskDto.getDescription())
+                .status(updateTaskDto.getStatus())
                 .build();
     }
 }

@@ -7,7 +7,7 @@ public interface TaskService {
 
     Task getTask(Long id);
 
-//    Task updateTask(Long id);
-//
+    Task updateTask(Task task, Long id);
+
 //    Task deleteTask(Long id);
 }

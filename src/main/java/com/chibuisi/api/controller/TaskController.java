@@ -1,6 +1,7 @@
 package com.chibuisi.api.controller;
 
 import com.chibuisi.api.model.TaskDto;
+import com.chibuisi.api.model.UpdateTaskDto;
 import com.chibuisi.api.transformer.TaskTransformer;
 import com.chibuisi.domain.service.TaskService;
 import io.micronaut.http.HttpResponse;
@@ -67,11 +68,31 @@ public class TaskController {
     )
     public HttpResponse<TaskDto> getTask(@PathVariable Long id) {
         TaskDto result = taskTransformer.fromTask(taskService.getTask(id));
-        if(result == null) {
-            return HttpResponse.notFound();
-        }
 
         return HttpResponse.ok(result);
+    }
+
+    @Put("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(
+            summary = "Updates a task",
+            description = "Updates a task with the provided data",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Task updated successfully",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskDto.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Invalid request"
+                    )
+            }
+    )
+    public HttpResponse<TaskDto> updateTask(@Body @Valid UpdateTaskDto updateTaskDto, @PathVariable Long id) {
+        return HttpResponse.ok(
+                taskTransformer.fromTask(taskService.updateTask(taskTransformer.fromUpdateTaskDto(updateTaskDto), id))
+        );
     }
 
 }

@@ -4,6 +4,7 @@ import com.chibuisi.domain.model.Task;
 import com.chibuisi.domain.model.TaskStatus;
 import com.chibuisi.infrastructure.postgres.enitity.Status;
 import com.chibuisi.infrastructure.postgres.enitity.TaskEntity;
+import io.micronaut.core.util.StringUtils;
 import jakarta.inject.Singleton;
 
 import java.time.Instant;
@@ -29,6 +30,16 @@ public class TaskTransformer {
                 .updatedTime(taskEntity.getUpdatedAt())
                 .status(TaskStatus.valueOf(taskEntity.getStatus().name()))
                 .build();
+    }
+
+    public TaskEntity updateTaskEntityFromTask(TaskEntity taskEntity, Task task) {
+        taskEntity.setUpdatedAt(Instant.now());
+        if (!StringUtils.isEmpty(task.getTitle()))
+            taskEntity.setTitle(task.getTitle());
+        if(!StringUtils.isEmpty(task.getDescription()))
+            taskEntity.setDescription(task.getDescription());
+        taskEntity.setStatus(Status.valueOf(task.getStatus().name()));
+        return taskEntity;
     }
 
 
