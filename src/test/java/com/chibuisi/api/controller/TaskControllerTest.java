@@ -1,5 +1,6 @@
 package com.chibuisi.api.controller;
 
+import com.chibuisi.api.exception.TaskNotFoundException;
 import com.chibuisi.api.model.TaskDto;
 import com.chibuisi.api.transformer.TaskTransformer;
 import com.chibuisi.domain.model.Task;
@@ -15,8 +16,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.time.Instant;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -113,14 +113,12 @@ class TaskControllerTest {
         // Arrange
         Long taskId = 1L;
 
-        when(taskService.getTask(taskId)).thenReturn(null);
+        when(taskService.getTask(taskId)).thenThrow(new TaskNotFoundException(1L));
 
         // Act
-        HttpResponse<TaskDto> response = taskController.getTask(taskId);
+        assertThrows(TaskNotFoundException.class, () -> taskController.getTask(taskId));
 
         // Assert
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
-        assertNull(response.body());
         verify(taskService, times(1)).getTask(taskId);
     }
 }

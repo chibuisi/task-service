@@ -58,18 +58,26 @@ public class TaskControllerIntegrationTest extends ApiTestSupport  {
         // Act
         HttpResponse<TaskDto> response = client.toBlocking().exchange(request, Argument.of(TaskDto.class));
 
+        TaskDto postResultTaskDto = response.getBody(TaskDto.class)
+                .orElseThrow(() -> new RuntimeException("TaskDto response body is empty"));
+
         // Assert
         assertEquals(201, response.getStatus().getCode());
         assertNotNull(response.body());
         assertNotNull(response.body().getId());
+        assertEquals(response.body().getId(), postResultTaskDto.getId());
         assertEquals("Integration Test Task", response.body().getTitle());
 
-        HttpRequest<TaskDto> getRequest = HttpRequest.GET(String.format("task/%d", 1L));
+        HttpRequest<TaskDto> getRequest = HttpRequest.GET(String.format("task/%d", postResultTaskDto.getId()));
 
         HttpResponse<TaskDto> getResponse = client.toBlocking().exchange(getRequest, Argument.of(TaskDto.class));
+
+        TaskDto resultTaskDto = getResponse.getBody(TaskDto.class)
+                .orElseThrow(() -> new RuntimeException("TaskDto response body is empty"));
+
         assertEquals(200, getResponse.getStatus().getCode());
         assertNotNull(response.body());
-        assertEquals(response.body().getId(), 1L);
+        assertEquals(resultTaskDto.getId(), resultTaskDto.getId());
         log.info("Passed get task integration test");
     }
     @Test
@@ -89,18 +97,23 @@ public class TaskControllerIntegrationTest extends ApiTestSupport  {
         // Act
         HttpResponse<TaskDto> response = client.toBlocking().exchange(request, Argument.of(TaskDto.class));
 
+        TaskDto postResultTaskDto = response.getBody(TaskDto.class)
+                .orElseThrow(() -> new RuntimeException("TaskDto response body is empty"));
+
         // Assert
         assertEquals(201, response.getStatus().getCode());
         assertNotNull(response.body());
         assertNotNull(response.body().getId());
+        assertEquals(response.body().getId(), postResultTaskDto.getId());
         assertEquals("Integration Test Task", response.body().getTitle());
 
-        HttpRequest<TaskDto> getRequest = HttpRequest.GET(String.format("task/%d", 1L));
+        HttpRequest<TaskDto> getRequest = HttpRequest.GET(String.format("task/%d", postResultTaskDto.getId()));
 
         HttpResponse<TaskDto> getResponse = client.toBlocking().exchange(getRequest, Argument.of(TaskDto.class));
+
         assertEquals(200, getResponse.getStatus().getCode());
         assertNotNull(response.body());
-        assertEquals(response.body().getId(), 1L);
+        assertEquals(response.body().getId(), postResultTaskDto.getId());
 
         TaskDto resultTaskDto = getResponse.getBody(TaskDto.class)
                 .orElseThrow(() -> new RuntimeException("TaskDto response body is empty"));
@@ -112,9 +125,10 @@ public class TaskControllerIntegrationTest extends ApiTestSupport  {
                 HttpRequest.PUT(String.format("/task/%s", resultTaskDto.getId()), updateTaskDto);
         HttpResponse<TaskDto> updateResponse =
                 client.toBlocking().exchange(updateRequest, Argument.of(TaskDto.class));
+
         assertEquals(200, updateResponse.getStatus().getCode());
         assertNotNull(updateResponse.body());
-        assertEquals(updateResponse.body().getId(), 1L);
+        assertEquals(updateResponse.body().getId(), postResultTaskDto.getId());
         assertEquals(updateResponse.body().getTitle(), updateTaskDto.getTitle());
         assertEquals(updateResponse.body().getStatus(), updateTaskDto.getStatus());
         assertEquals(updateResponse.body().getDescription(), updateTaskDto.getDescription());
