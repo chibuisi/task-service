@@ -121,4 +121,17 @@ class TaskControllerTest {
         // Assert
         verify(taskService, times(1)).getTask(taskId);
     }
+
+    @Test
+    void deleteTask_withValidId_shouldReturnNoContent() {
+        // Given
+        Long taskId = 1L;
+
+        // When
+        HttpResponse<Void> response = taskController.deleteTask(taskId);
+
+        // Then
+        verify(taskService, times(1)).deleteTask(taskId);
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatus());
+    }
 }

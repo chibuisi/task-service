@@ -77,7 +77,7 @@ public class TaskControllerIntegrationTest extends ApiTestSupport  {
 
         assertEquals(200, getResponse.getStatus().getCode());
         assertNotNull(response.body());
-        assertEquals(resultTaskDto.getId(), resultTaskDto.getId());
+        assertEquals(resultTaskDto.getId(), postResultTaskDto.getId());
         log.info("Passed get task integration test");
     }
     @Test

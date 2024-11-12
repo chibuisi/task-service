@@ -31,7 +31,7 @@ public class TaskController {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(
             summary = "Create a new task",
-            description = "Creates a task with the provided details",
+            description = "Creates a task with the provided data",
             responses = {
                     @ApiResponse(
                             responseCode = "201",
@@ -58,7 +58,7 @@ public class TaskController {
                     @ApiResponse(
                             responseCode = "200",
                             description = "Task retrieved successfully",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskDto.class))
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "400",
@@ -76,12 +76,12 @@ public class TaskController {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(
             summary = "Updates a task",
-            description = "Updates a task with the provided data",
+            description = "Updates a task with the provided data and id",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
                             description = "Task updated successfully",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskDto.class))
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UpdateTaskDto.class))
                     ),
                     @ApiResponse(
                             responseCode = "400",
@@ -93,6 +93,28 @@ public class TaskController {
         return HttpResponse.ok(
                 taskTransformer.fromTask(taskService.updateTask(taskTransformer.fromUpdateTaskDto(updateTaskDto), id))
         );
+    }
+
+    @Delete("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(
+            summary = "Deletes a task",
+            description = "Deletes a task with the provided id",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "Task updated successfully",
+                            content = @Content(mediaType = "application/json")
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Invalid request"
+                    )
+            }
+    )
+    public HttpResponse<Void> deleteTask(@PathVariable Long id) {
+        taskService.deleteTask(id);
+        return HttpResponse.noContent();
     }
 
 }

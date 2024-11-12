@@ -171,5 +171,26 @@ class TaskEntityServiceTest {
         verify(taskRepository, times(1)).update(updatedTaskEntity);
         verify(taskTransformer, times(1)).fromTaskEntity(savedTaskEntity);
     }
+
+    @Test
+    public void deleteTask_shouldCallDeleteById_onTaskRepository() {
+        // Given
+        Long taskId = 1L;
+
+        // When
+        taskEntityService.deleteTask(taskId);
+
+        // Then
+        verify(taskRepository, times(1)).deleteById(taskId);
+    }
+
+    @Test
+    public void deleteTask_whenIdIsNull_shouldThrowException() {
+        // Given
+        Long taskId = null;
+
+        // When / Then
+        assertThrows(IllegalArgumentException.class, () -> taskEntityService.deleteTask(taskId));
+    }
 }
 

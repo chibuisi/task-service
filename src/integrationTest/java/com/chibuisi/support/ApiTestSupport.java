@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.UUID;
 
 @MicronautTest
-@Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class ApiTestSupport implements TestPropertyProvider {
 

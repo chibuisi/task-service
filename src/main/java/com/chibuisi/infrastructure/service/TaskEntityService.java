@@ -62,4 +62,12 @@ public class TaskEntityService implements TaskService {
 
         return taskTransformer.fromTaskEntity(taskEntity);
     }
+
+    @Override
+    public void deleteTask(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Task ID cannot be null");
+        }
+        taskRepository.deleteById(id);
+    }
 }
