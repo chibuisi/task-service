@@ -19,7 +19,7 @@ public class InvalidTaskExceptionHandler implements ExceptionHandler<InvalidTask
 
         ErrorMessage message = ErrorMessage.builder()
                 .message(exception.getMessage()).status(false).build();
-        return HttpResponse.notFound(message).
+        return HttpResponse.serverError(message).
                 status(HttpStatus.NOT_FOUND);
     }
 
