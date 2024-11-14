@@ -3,6 +3,7 @@ package com.chibuisi.api.model;
 import com.chibuisi.domain.model.TaskStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -15,7 +16,7 @@ import java.time.Instant;
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TaskDto {
-    @JsonProperty
+    @Schema(description = "Auto-generated ID", accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
     @JsonProperty
     @NotBlank
